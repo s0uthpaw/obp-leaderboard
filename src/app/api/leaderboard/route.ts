@@ -1,33 +1,20 @@
-"use client";
-import { useTransition } from "react";
+import { NextResponse } from "next/server";
 
-export default function PortalButton() {
-  const [pending, startTransition] = useTransition();
+/**
+ * Minimal placeholder leaderboard API:
+ * Returns an empty rows array for now.
+ * (No JSX, no Prisma, no external fetch yet.)
+ */
+export async function GET() {
+  const rows: Array<{
+    id: string;
+    name: string;
+    team?: string | null;
+    pos?: string | null;
+    obp7: number;
+    obpPrev7: number;
+    delta: number;
+  }> = [];
 
-  const onClick = () =>
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/billing/portal", { method: "POST" });
-        const data = await res.json();
-
-        if (data?.url) {
-          window.location.href = data.url as string;
-        } else {
-          alert(data?.error ?? "Billing portal not available yet.");
-        }
-      } catch {
-        alert("Billing portal not available yet.");
-      }
-    });
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={pending}
-      className="rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-    >
-      {pending ? "Opening…" : "Open Billing Portal"}
-    </button>
-  );
+  return NextResponse.json({ rows });
 }
