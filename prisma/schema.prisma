@@ -1,0 +1,44 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"   // <- keep default output so we can import from "@prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String?
+  createdAt DateTime @default(now())
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  name      String
+  team      String?
+  pos       String?
+  createdAt DateTime @default(now())
+
+  stats     Stat[]
+
+  @@index([name])
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  playerId  String
+  date      DateTime
+  ab        Int      @default(0)
+  h         Int      @default(0)
+  bb        Int      @default(0)
+  hbp       Int      @default(0)
+  sf        Int      @default(0)
+
+  player    Player   @relation(fields: [playerId], references: [id])
+
+  @@index([playerId, date])
+}
