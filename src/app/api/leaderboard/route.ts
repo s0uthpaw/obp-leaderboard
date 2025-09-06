@@ -1,23 +1,33 @@
-import { NextResponse } from "next/server";
+"use client";
+import { useTransition } from "react";
 
-/**
- * Minimal placeholder leaderboard API:
- * - No Prisma
- * - No local formulas
- * - Returns an empty rows array for now
- * Swap the TODO to fetch from BallDontLie when ready.
- */
-export async function GET() {
-  // TODO: fetch external data and normalize to the expected shape
-  const rows: Array<{
-    id: string;
-    name: string;
-    team?: string | null;
-    pos?: string | null;
-    obp7: number;
-    obpPrev7: number;
-    delta: number;
-  }> = [];
+export default function PortalButton() {
+  const [pending, startTransition] = useTransition();
 
-  return NextResponse.json({ rows });
+  const onClick = () =>
+    startTransition(async () => {
+      try {
+        const res = await fetch("/api/billing/portal", { method: "POST" });
+        const data = await res.json();
+
+        if (data?.url) {
+          window.location.href = data.url as string;
+        } else {
+          alert(data?.error ?? "Billing portal not available yet.");
+        }
+      } catch {
+        alert("Billing portal not available yet.");
+      }
+    });
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={pending}
+      className="rounded-md border px-3 py-2 text-sm disabled:opacity-50"
+    >
+      {pending ? "Opening…" : "Open Billing Portal"}
+    </button>
+  );
 }

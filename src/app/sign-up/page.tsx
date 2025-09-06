@@ -1,10 +1,14 @@
 "use client";
+
+import { Suspense } from "react";
 import { SignUp } from "@clerk/nextjs";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default function SignUpPage() {
   return (
-    <main style={{ maxWidth: 480, margin: "40px auto", padding: "0 1rem" }}>
-      <SignUp routing="hash" />
-    </main>
+    <Suspense fallback={<div />}>
+      <SignUp />
+    </Suspense>
   );
 }
