@@ -1,32 +1,14 @@
-// src/app/api/leaderboard/route.ts
-
 import { NextResponse } from "next/server";
 
 /**
- * Minimal, API-first leaderboard route.
+ * Minimal placeholder leaderboard API:
  * - No Prisma
  * - No local formulas
- * - Ready to be swapped to fetch from BallDontLie (or any external API)
- *
- * Expected shape for the UI:
- * rows: Array<{
- *   id: string;
- *   name: string;
- *   team?: string | null;
- *   pos?: string | null;
- *   obp7: number;        // last 7d OBP
- *   obpPrev7: number;    // previous 7d OBP
- *   delta: number;       // obp7 - obpPrev7
- * }>
+ * - Returns an empty rows array for now
+ * Swap the TODO to fetch from BallDontLie when ready.
  */
-
 export async function GET() {
-  // TODO: Replace with real fetch to BallDontLie (or your chosen MLB API)
-  // Example:
-  // const resp = await fetch(`https://<balldontlie-mlb>/leaderboard?...`, { cache: "no-store" });
-  // const data = await resp.json();
-  // const rows = data.map(/* normalize to the shape above */);
-
+  // TODO: fetch external data and normalize to the expected shape
   const rows: Array<{
     id: string;
     name: string;
