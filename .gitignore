@@ -51,3 +51,7 @@ prisma/*.db-journal
 
 # Logs
 *.log
+
+# Prisma local DB
+prisma/dev.db
+prisma/*.db-journal
