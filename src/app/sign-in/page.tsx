@@ -1,25 +1,14 @@
-// src/app/sign-in/[[...sign-in]]/page.tsx
 "use client";
 
-import { SignIn, useUser } from "@clerk/nextjs";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense } from "react";
+import { SignIn } from "@clerk/nextjs";
 
-export default function Page() {
-  const sp = useSearchParams();
-  const router = useRouter();
-  const { isSignedIn } = useUser();
+export const dynamic = "force-dynamic"; // avoid static export issues
 
-  const back =
-    sp.get("redirect_url") || sp.get("redirectUrl") || "/dashboard";
-
-  useEffect(() => {
-    if (isSignedIn) router.replace(back);
-  }, [isSignedIn, back, router]);
-
+export default function SignInPage() {
   return (
-    <main style={{ maxWidth: 480, margin: "40px auto", padding: "0 1rem" }}>
-      {!isSignedIn && <SignIn routing="hash" />}
-    </main>
+    <Suspense fallback={<div />}>
+      <SignIn />
+    </Suspense>
   );
 }
