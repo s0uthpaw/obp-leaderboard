@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import type { Player } from "@prisma/client"; // 👈 add this
 
 // OBP formula
 function obp(h: number, bb: number, hbp: number, ab: number, sf: number) {
@@ -12,14 +13,15 @@ export async function GET() {
   const d7 = new Date(); d7.setDate(today.getDate() - 7);
   const d14 = new Date(); d14.setDate(today.getDate() - 14);
 
-  // Last 14 days of stats
   const stats = await prisma.stat.findMany({
     where: { date: { gte: d14 } },
     include: { player: true },
   });
 
   type Agg = { ab: number; h: number; bb: number; hbp: number; sf: number };
-  const acc: Record<string, { last7: Agg; prev7: Agg; player: any }> = {};
+  type Buckets = { last7: Agg; prev7: Agg; player: Player }; // 👈 no `any`
+
+  const acc: Record<string, Buckets> = {};
 
   for (const s of stats) {
     const key = s.playerId;
@@ -36,20 +38,22 @@ export async function GET() {
     acc[key][bucket].sf += s.sf;
   }
 
-  const rows = Object.values(acc).map(({ last7, prev7, player }) => {
-    const obp7 = obp(last7.h, last7.bb, last7.hbp, last7.ab, last7.sf);
-    const obpP7 = obp(prev7.h, prev7.bb, prev7.hbp, prev7.ab, prev7.sf);
-    const delta = obp7 - obpP7;
-    return {
-      id: player.id,
-      name: player.name,
-      team: player.team,
-      pos: player.pos,
-      obp7: Number(obp7.toFixed(3)),
-      obpPrev7: Number(obpP7.toFixed(3)),
-      delta: Number(delta.toFixed(3)),
-    };
-  }).sort((a, b) => b.delta - a.delta);
+  const rows = Object.values(acc)
+    .map(({ last7, prev7, player }) => {
+      const obp7 = obp(last7.h, last7.bb, last7.hbp, last7.ab, last7.sf);
+      const obpP7 = obp(prev7.h, prev7.bb, prev7.hbp, prev7.ab, prev7.sf);
+      const delta = obp7 - obpP7;
+      return {
+        id: player.id,
+        name: player.name,
+        team: player.team,
+        pos: player.pos,
+        obp7: Number(obp7.toFixed(3)),
+        obpPrev7: Number(obpP7.toFixed(3)),
+        delta: Number(delta.toFixed(3)),
+      };
+    })
+    .sort((a, b) => b.delta - a.delta);
 
   return NextResponse.json({ rows });
 }
