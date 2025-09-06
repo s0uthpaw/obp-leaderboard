@@ -1,27 +1,33 @@
 "use client";
-
 import { useTransition } from "react";
-import { openBillingPortal } from "./actions";
 
 export default function PortalButton() {
-  const [pending, start] = useTransition();
+  const [pending, startTransition] = useTransition();
+
+  const onClick = () =>
+    startTransition(async () => {
+      try {
+        const res = await fetch("/api/billing/portal", { method: "POST" });
+        const data = await res.json();
+
+        if (data?.url) {
+          window.location.href = data.url as string;
+        } else {
+          alert(data?.error ?? "Billing portal not available yet.");
+        }
+      } catch {
+        alert("Billing portal not available yet.");
+      }
+    });
 
   return (
     <button
-      className="rounded-md border px-4 py-2 disabled:opacity-60"
+      type="button"
+      onClick={onClick}
       disabled={pending}
-      onClick={() =>
-        start(async () => {
-          const res = await openBillingPortal();
-          if (res.ok && res.url) {
-            window.location.href = res.url;
-          } else {
-            alert(res.error ?? "Unable to open billing portal");
-          }
-        })
-      }
+      className="rounded-md border px-3 py-2 text-sm disabled:opacity-50"
     >
-      {pending ? "Opening…" : "Open billing portal"}
+      {pending ? "Opening…" : "Open Billing Portal"}
     </button>
   );
 }
