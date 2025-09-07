@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   };
 
   try {
-    // NOTE: base should be https://mlb.balldontlie.io/api/v1 in your .env.local / Vercel
+    // base should be https://mlb.balldontlie.io/api/v1 in env
     const data = await bdlFetch<BdlPlayersResponse>({ path: "players", params });
     return NextResponse.json(data, { status: 200 });
   } catch (e) {
